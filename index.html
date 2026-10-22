@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PocketWise — Money & Budget Tracker</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131a2d;
+      --panel-2: #192239;
+      --line: #28334d;
+      --text: #f4f7ff;
+      --muted: #9ba8c3;
+      --green: #5ee0a0;
+      --blue: #7aa8ff;
+      --purple: #b49aff;
+      --orange: #ffbf69;
+      --red: #ff7e8b;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(83, 112, 220, .16), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    .app { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      padding: 28px 18px;
+      background: rgba(13, 19, 36, .92);
+      border-right: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px; margin-bottom: 42px; }
+    .brand-mark {
+      width: 39px; height: 39px; display: grid; place-items: center;
+      border-radius: 13px; color: #07160f; font-weight: 900; font-size: 22px;
+      background: linear-gradient(135deg, #7bf0b2, #54c8e8);
+    }
+    .brand-name { font-weight: 800; letter-spacing: -.5px; font-size: 19px; }
+    .brand-name span { color: var(--green); }
+    .nav-label { color: #71809e; text-transform: uppercase; letter-spacing: 1.5px; font-size: 10px; font-weight: 800; padding: 0 12px; margin: 24px 0 10px; }
+    nav a {
+      display: flex; gap: 13px; align-items: center; color: var(--muted); text-decoration: none;
+      padding: 12px 13px; border-radius: 12px; margin: 4px 0; font-size: 13px; font-weight: 650;
+    }
+    nav a.active { background: #1e2c40; color: var(--green); box-shadow: inset 3px 0 var(--green); }
+    nav a .ico { width: 20px; text-align: center; font-size: 16px; }
+    .side-tip { margin-top: 48px; padding: 17px; background: linear-gradient(145deg, #1c2b3b, #171d32); border: 1px solid #304056; border-radius: 16px; }
+    .side-tip .bulb { font-size: 23px; }
+    .side-tip h3 { font-size: 13px; margin: 8px 0 5px; }
+    .side-tip p { font-size: 11px; color: var(--muted); margin: 0; }
+    main { min-width: 0; padding: 30px clamp(18px, 3vw, 42px) 45px; max-width: 1600px; width: 100%; margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 29px; }
+    .eyebrow { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; }
+    h1 { font-size: clamp(25px, 3vw, 34px); letter-spacing: -1.2px; margin: 5px 0 0; line-height: 1.15; }
+    .subtitle { color: var(--muted); font-size: 13px; margin-top: 9px; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .month-pill, .avatar { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 12px; padding: 10px 13px; font-size: 12px; }
+    .avatar { width: 42px; height: 42px; padding: 0; display: grid; place-items: center; border-radius: 50%; font-weight: 800; color: var(--green); background: #1b2e35; }
+    .grid { display: grid; gap: 18px; }
+    .summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 18px; }
+    .card { background: linear-gradient(145deg, rgba(22, 30, 51, .98), rgba(17, 24, 42, .98)); border: 1px solid var(--line); border-radius: 18px; padding: 21px; min-width: 0; }
+    .stat-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+    .stat-icon { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 11px; font-size: 17px; }
+    .green-bg { background: rgba(94, 224, 160, .12); color: var(--green); }
+    .blue-bg { background: rgba(122, 168, 255, .13); color: var(--blue); }
+    .orange-bg { background: rgba(255, 191, 105, .13); color: var(--orange); }
+    .purple-bg { background: rgba(180, 154, 255, .13); color: var(--purple); }
+    .amount { font-size: clamp(22px, 2.1vw, 29px); font-weight: 800; letter-spacing: -.8px; margin: 15px 0 7px; white-space: nowrap; }
+    .stat-foot { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+    .positive { color: var(--green); font-weight: 750; }
+    .negative { color: var(--red); font-weight: 750; }
+    .content-grid { grid-template-columns: minmax(0, 1.55fr) minmax(290px, .9fr); margin-bottom: 18px; }
+    .section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
+    h2 { font-size: 16px; margin: 0; letter-spacing: -.3px; }
+    .section-sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
+    .select-like { color: var(--muted); border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; font-size: 11px; white-space: nowrap; }
+    .chart-legend { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 11px; margin-bottom: 10px; }
+    .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
+    .chart { height: 205px; display: flex; align-items: stretch; gap: 13px; padding: 12px 3px 0; border-bottom: 1px solid var(--line); background: repeating-linear-gradient(to bottom, transparent 0, transparent 48px, rgba(95, 112, 145, .15) 49px, transparent 50px); }
+    .bar-group { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 9px; }
+    .bars { height: 170px; display: flex; align-items: flex-end; gap: 5px; width: 100%; justify-content: center; }
+    .bar { width: min(17px, 34%); border-radius: 5px 5px 2px 2px; min-height: 8px; }
+    .bar.income { background: linear-gradient(180deg, #6fe6b0, #2b9977); }
+    .bar.spending { background: linear-gradient(180deg, #809fff, #536ac5); }
+    .bar-label { color: var(--muted); font-size: 10px; padding-bottom: 10px; }
+    .budget-total { background: #19283a; border: 1px solid #2b4050; border-radius: 14px; padding: 17px; margin-bottom: 20px; }
+    .budget-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+    .budget-row span:first-child { color: var(--muted); font-size: 11px; }
+    .budget-row strong { font-size: 20px; }
+    .progress { height: 8px; background: #2b354b; border-radius: 20px; overflow: hidden; margin: 13px 0 8px; }
+    .progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #5ee0a0, #42bfc4); }
+    .progress-caption { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
+    .category { margin: 17px 0; }
+    .category-line { display: flex; align-items: center; gap: 10px; }
+    .category-ico { width: 35px; height: 35px; border-radius: 11px; display: grid; place-items: center; background: var(--panel-2); }
+    .category-info { flex: 1; min-width: 0; }
+    .category-name { font-size: 12px; font-weight: 700; }
+    .category-note { color: var(--muted); font-size: 10px; margin-top: 2px; }
+    .category-value { text-align: right; font-size: 12px; font-weight: 750; }
+    .category-value small { display: block; font-size: 10px; font-weight: 500; color: var(--muted); }
+    .mini-progress { height: 5px; border-radius: 10px; background: #29334a; margin: 10px 0 0 45px; overflow: hidden; }
+    .mini-progress span { display: block; height: 100%; border-radius: inherit; }
+    .bottom-grid { grid-template-columns: minmax(0, 1.4fr) minmax(270px, .8fr); }
+    .transactions { width: 100%; border-collapse: collapse; text-align: left; }
+    .transactions th { font-size: 10px; text-transform: uppercase; letter-spacing: .9px; color: #7e8ba7; font-weight: 750; padding: 0 10px 13px; }
+    .transactions td { padding: 13px 10px; border-top: 1px solid rgba(40, 51, 77, .72); font-size: 11px; white-space: nowrap; }
+    .merchant { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .merchant-icon { width: 33px; height: 33px; display: grid; place-items: center; border-radius: 10px; background: var(--panel-2); font-size: 15px; }
+    .merchant small { display: block; color: var(--muted); font-weight: 450; font-size: 10px; margin-top: 2px; }
+    .status { font-size: 9px; border-radius: 20px; padding: 4px 7px; color: var(--green); background: rgba(94, 224, 160, .1); }
+    .goal { padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .goal:last-child { border-bottom: 0; padding-bottom: 0; }
+    .goal-top { display: flex; gap: 10px; align-items: center; }
+    .goal-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: var(--panel-2); font-size: 19px; }
+    .goal-title { font-size: 12px; font-weight: 750; }
+    .goal-meta { color: var(--muted); font-size: 10px; margin-top: 3px; }
+    .goal-amount { margin-left: auto; font-size: 11px; font-weight: 750; text-align: right; }
+    .goal-amount span { display: block; font-size: 10px; color: var(--muted); font-weight: 500; margin-top: 3px; }
+    .goal .progress { margin: 13px 0 0; height: 6px; }
+    .footer { text-align: center; color: #65718d; font-size: 10px; margin-top: 26px; }
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 200px minmax(0, 1fr); }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .content-grid, .bottom-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .app { display: block; }
+      aside { padding: 15px 14px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .brand { margin-bottom: 14px; }
+      nav { display: flex; overflow-x: auto; gap: 5px; }
+      nav a { white-space: nowrap; margin: 0; padding: 10px; }
+      nav a .ico { display: none; }
+      .nav-label, .side-tip { display: none; }
+      main { padding: 24px 14px 35px; }
+      .topbar { align-items: flex-start; }
+      .top-actions { gap: 7px; }
+      .month-pill { padding: 9px; }
+      .avatar { display: none; }
+      .summary-grid { gap: 10px; }
+      .card { padding: 16px; }
+      .amount { font-size: 23px; }
+      .chart { gap: 6px; }
+      .transactions th:nth-child(3), .transactions td:nth-child(3) { display: none; }
+      .transactions td, .transactions th { padding-left: 5px; padding-right: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="brand-mark">$</div>
+        <div class="brand-name">pocket<span>wise</span></div>
+      </div>
+      <div class="nav-label">Workspace</div>
+      <nav aria-label="Main navigation">
+        <a class="active" href="#overview"><span class="ico">▦</span>Overview</a>
+        <a href="#transactions"><span class="ico">↔</span>Transactions</a>
+        <a href="#budget"><span class="ico">◉</span>My Budget</a>
+        <a href="#goals"><span class="ico">◎</span>Savings Goals</a>
+      </nav>
+      <div class="nav-label">Personal</div>
+      <nav aria-label="Personal navigation">
+        <a href="#budget"><span class="ico">⚙</span>Settings</a>
+        <a href="#help"><span class="ico">?</span>Help & Tips</a>
+      </nav>
+      <div class="side-tip" id="help">
+        <div class="bulb">💡</div>
+        <h3>Small steps add up</h3>
+        <p>Try saving a little from every paycheck. Consistency matters more than the amount you start with.</p>
+      </div>
+    </aside>
+
+    <main id="overview">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Your financial snapshot</div>
+          <h1>Money overview</h1>
+          <div class="subtitle">Here's how your money is looking this month.</div>
+        </div>
+        <div class="top-actions">
+          <div class="month-pill">▣ &nbsp; October 2026⌄</div>
+          <div class="avatar" aria-label="Profile">PW</div>
+        </div>
+      </header>
+
+      <section class="grid summary-grid" aria-label="Monthly summary">
+        <article class="card">
+          <div class="stat-top"><span>Total balance</span><span class="stat-icon green-bg">▤</span></div>
+          <div class="amount">$8,450.00</div>
+          <div class="stat-foot"><span class="positive">↑ 8.2%</span><span>vs. last month</span></div>
+        </article>
+        <article class="card">
+          <div class="stat-top"><span>Income</span><span class="stat-icon blue-bg">↙</span></div>
+          <div class="amount">$3,200.00</div>
+          <div class="stat-foot"><span class="positive">↑ 4.5%</span><span>this month</span></div>
+        </article>
+        <article class="card">
+          <div class="stat-top"><span>Expenses</span><span class="stat-icon orange-bg">↗</span></div>
+          <div class="amount">$1,845.50</div>
+          <div class="stat-foot"><span class="negative">↑ 2.1%</span><span>vs. last month</span></div>
+        </article>
+        <article class="card">
+          <div class="stat-top"><span>Saved this month</span><span class="stat-icon purple-bg">✧</span></div>
+          <div class="amount">$650.00</div>
+          <div class="stat-foot"><span class="positive">20.3%</span><span>of your income</span></div>
+        </article>
+      </section>
+
+      <section class="grid content-grid">
+        <article class="card">
+          <div class="section-head">
+            <div><h2>Cash flow</h2><div class="section-sub">Income compared with spending</div></div>
+            <div class="select-like">Last 6 months⌄</div>
+          </div>
+          <div class="chart-legend">
+            <span><i class="dot" style="background:var(--green)"></i>Income</span>
+            <span><i class="dot" style="background:var(--blue)"></i>Expenses</span>
+          </div>
+          <div class="chart" role="img" aria-label="Illustrative bar chart comparing monthly income and expenses from May through October">
+            <div class="bar-group"><div class="bars"><span class="bar income" style="height:69%"></span><span class="bar spending" style="height:43%"></span></div><div class="bar-label">May</div></div>
+            <div class="bar-group"><div class="bars"><span class="bar income" style="height:80%"></span><span class="bar spending" style="height:50%"></span></div><div class="bar-label">Jun</div></div>
+            <div class="bar-group"><div class="bars"><span class="bar income" style="height:61%"></span><span class="bar spending" style="height:39%"></span></div><div class="bar-label">Jul</div></div>
+            <div class="bar-group"><div class="bars"><span class="bar income" style="height:88%"></span><span class="bar spending" style="height:54%"></span></div><div class="bar-label">Aug</div></div>
+            <div class="bar-group"><div class="bars"><span class="bar income" style="height:74%"></span><span class="bar spending" style="height:47%"></span></div><div class="bar-label">Sep</div></div>
+            <div class="bar-group"><div class="bars"><span class="bar income" style="height:94%"></span><span class="bar spending" style="height:58%"></span></div><div class="bar-label">Oct</div></div>
+          </div>
+        </article>
+
+        <article class="card" id="budget">
+          <div class="section-head">
+            <div><h2>Monthly budget</h2><div class="section-sub">Keep your spending on track</div></div>
+            <div class="select-like">October⌄</div>
+          </div>
+          <div class="budget-total">
+            <div class="budget-row"><span>You've spent</span><strong>$1,845.50</strong></div>
+            <div class="progress"><span style="width:61.5%"></span></div>
+            <div class="progress-caption"><span>61.5% of $3,000 budget</span><span>$1,154.50 left</span></div>
+          </div>
+          <div class="category">
+            <div class="category-line"><div class="category-ico">🏠</div><div class="category-info"><div class="category-name">Housing & bills</div><div class="category-note">$900 budget</div></div><div class="category-value">$780<small>87% used</small></div></div>
+            <div class="mini-progress"><span style="width:87%;background:var(--blue)"></span></div>
+          </div>
+          <div class="category">
+            <div class="category-line"><div class="category-ico">🛒</div><div class="category-info"><div class="category-name">Food & groceries</div><div class="category-note">$500 budget</div></div><div class="category-value">$325<small>65% used</small></div></div>
+            <div class="mini-progress"><span style="width:65%;background:var(--green)"></span></div>
+          </div>
+          <div class="category">
+            <div class="category-line"><div class="category-ico">🚗</div><div class="category-info"><div class="category-name">Transportation</div><div class="category-note">$400 budget</div></div><div class="category-value">$260<small>65% used</small></div></div>
+            <div class="mini-progress"><span style="width:65%;background:var(--orange)"></span></div>
+          </div>
+          <div class="category">
+            <div class="category-line"><div class="category-ico">🎮</div><div class="category-info"><div class="category-name">Fun & personal</div><div class="category-note">$350 budget</div></div><div class="category-value">$180.50<small>52% used</small></div></div>
+            <div class="mini-progress"><span style="width:52%;background:var(--purple)"></span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid bottom-grid">
+        <article class="card" id="transactions">
+          <div class="section-head">
+            <div><h2>Recent transactions</h2><div class="section-sub">A quick look at money moving in and out</div></div>
+            <div class="select-like">View all →</div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="transactions">
+              <thead><tr><th>Transaction</th><th>Date</th><th>Category</th><th>Amount</th></tr></thead>
+              <tbody>
+                <tr><td><div class="merchant"><span class="merchant-icon">💼</span><span>Paycheck<small>Direct deposit</small></span></div></td><td>Oct 21</td><td><span class="status">Income</span></td><td class="positive">+$1,600.00</td></tr>
+                <tr><td><div class="merchant"><span class="merchant-icon">🛍️</span><span>Everyday Market<small>Card payment</small></span></div></td><td>Oct 20</td><td>Groceries</td><td>−$68.40</td></tr>
+                <tr><td><div class="merchant"><span class="merchant-icon">⛽</span><span>Fuel Stop<small>Debit card</small></span></div></td><td>Oct 18</td><td>Transport</td><td>−$42.75</td></tr>
+                <tr><td><div class="merchant"><span class="merchant-icon">📱</span><span>Mobile plan<small>Automatic payment</small></span></div></td><td>Oct 16</td><td>Bills</td><td>−$55.00</td></tr>
+                <tr><td><div class="merchant"><span class="merchant-icon">☕</span><span>Daily Grind<small>Card payment</small></span></div></td><td>Oct 15</td><td>Food</td><td>−$8.50</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card" id="goals">
+          <div class="section-head">
+            <div><h2>Savings goals</h2><div class="section-sub">Little by little, you get there</div></div>
+            <div class="select-like">＋ Add goal</div>
+          </div>
+          <div class="goal">
+            <div class="goal-top"><div class="goal-icon">🚙</div><div><div class="goal-title">Car fund</div><div class="goal-meta">Target: Dec 2026</div></div><div class="goal-amount">$2,400<span>of $5,000</span></div></div>
+            <div class="progress"><span style="width:48%;background:var(--green)"></span></div>
+          </div>
+          <div class="goal">
+            <div class="goal-top"><div class="goal-icon">🧳</div><div><div class="goal-title">Dream vacation</div><div class="goal-meta">Target: Jun 2027</div></div><div class="goal-amount">$850<span>of $2,000</span></div></div>
+            <div class="progress"><span style="width:42.5%;background:var(--blue)"></span></div>
+          </div>
+          <div class="goal">
+            <div class="goal-top"><div class="goal-icon">🛟</div><div><div class="goal-title">Emergency fund</div><div class="goal-meta">Build a safety net</div></div><div class="goal-amount">$1,200<span>of $3,000</span></div></div>
+            <div class="progress"><span style="width:40%;background:var(--purple)"></span></div>
+          </div>
+        </article>
+      </section>
+      <div class="footer">PocketWise · A clearer view of your money · Demo data for design purposes</div>
+    </main>
+  </div>
+</body>
+</html>
